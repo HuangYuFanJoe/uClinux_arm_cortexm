@@ -74,7 +74,12 @@ int main(int argc, char **argv)
 		printf("Connection error");
 	}
 
-	char message[20] = "Requester: fanfan";
+	static char message[1000];
+	malloc(sizeof(char) * 1000);
+	memset(message, ' ', sizeof(char) * 1000);
+	int i;
+	for(i = 0; i < 100000; i++)
+		message[i] = (i % 10) + '0';
 	char receiveMessage[100] = {};
 	send(sockfd,message,sizeof(message),0);
 	recv(sockfd,receiveMessage,sizeof(receiveMessage),0);

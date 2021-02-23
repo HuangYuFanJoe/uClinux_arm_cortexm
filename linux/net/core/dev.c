@@ -2084,7 +2084,30 @@ gso:
 	skb->tc_verd = SET_TC_AT(skb->tc_verd, AT_EGRESS);
 #endif
 	if (q->enqueue) {
-		rc = __dev_xmit_skb(skb, q, dev, txq);
+		static int count = 0;
+		count++;
+		if(count % 2)
+			rc = __dev_xmit_skb(skb, q, dev, txq);	
+		else{
+			/* dequeue qdisc */
+			struct sk_buff *skb = q->gso_skb;
+			if (unlikely(skb)) {
+				struct net_device *dev = qdisc_dev(q);
+				struct netdev_queue *txq;
+
+				/* check the reason of requeuing without tx lock first */
+				txq = netdev_get_tx_queue(dev, skb_get_queue_mapping(skb));
+				if (!netif_tx_queue_stopped(txq) &&
+					!netif_tx_queue_frozen(txq)) {
+					q->gso_skb = NULL;
+					q->q.qlen--;
+				} else
+					skb = NULL;
+			} else
+				skb = q->dequeue(q);
+
+			rc = NET_XMIT_SUCCESS;
+		}
 		goto out;
 	}
 
