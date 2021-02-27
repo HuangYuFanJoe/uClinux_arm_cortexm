@@ -2084,18 +2084,22 @@ gso:
 	skb->tc_verd = SET_TC_AT(skb->tc_verd, AT_EGRESS);
 #endif
 	if (q->enqueue) {
-		static int count = 0;
+		rc = __dev_xmit_skb(skb, q, dev, txq);
+		goto out;
+
+		/* drop some packets test */
+		/*static int count = 0;
 		count++;
 		if(count % 2)
 			rc = __dev_xmit_skb(skb, q, dev, txq);	
 		else{
-			/* dequeue qdisc */
+			// dequeue qdisc
 			struct sk_buff *skb = q->gso_skb;
 			if (unlikely(skb)) {
 				struct net_device *dev = qdisc_dev(q);
 				struct netdev_queue *txq;
 
-				/* check the reason of requeuing without tx lock first */
+				// check the reason of requeuing without tx lock first
 				txq = netdev_get_tx_queue(dev, skb_get_queue_mapping(skb));
 				if (!netif_tx_queue_stopped(txq) &&
 					!netif_tx_queue_frozen(txq)) {
@@ -2108,7 +2112,7 @@ gso:
 
 			rc = NET_XMIT_SUCCESS;
 		}
-		goto out;
+		goto out;*/
 	}
 
 	/* The device has no queue. Common case for software devices:
