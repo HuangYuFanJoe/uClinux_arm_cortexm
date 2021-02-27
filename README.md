@@ -1,6 +1,6 @@
 # uClinux_arm_cortexm
 
-I write a socket program on uClinux to test my kernel modification(stick timestamp to Link-layer packet).<br>
+I write a socket program on uClinux to test my kernel modification.<br>
 If you want to test it, you may need to follow the steps below:
 
 - ### Linux development environment
