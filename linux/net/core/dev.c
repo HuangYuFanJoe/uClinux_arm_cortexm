@@ -1446,7 +1446,7 @@ static inline void net_timestamp_tx(struct sk_buff *skb)
 		ts = ktime_to_timespec(skb->tstamp);
 		struct rtc_time tm;
 		rtc_time_to_tm(ts.tv_sec, &tm);
-		printk("transmit packet time: %04d-%02d-%02d %02d:%02d:%02d.%u)\n",
+		printk("%d transmit packet time: %04d-%02d-%02d %02d:%02d:%02d.%u)\n", skb->priority,
 		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
 	}
 	else

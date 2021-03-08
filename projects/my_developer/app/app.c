@@ -16,7 +16,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-void socket_send()
+void socket_send(int optval)
 {
 	int sockfd = 0;
 	sockfd = socket(AF_INET , SOCK_STREAM , 0);
@@ -29,7 +29,7 @@ void socket_send()
 	bzero(&info,sizeof(info));
 	info.sin_family = AF_INET;
 
-	info.sin_addr.s_addr = inet_addr("192.168.1.100");
+	info.sin_addr.s_addr = inet_addr("192.168.1.105");
 	info.sin_port = htons(8080);
 
 	int err = connect(sockfd,(struct sockaddr *)&info,sizeof(info));
@@ -37,6 +37,27 @@ void socket_send()
 		printf("Connection error");
 	}
 
+	if(optval == 7){
+		setsockopt(sockfd, SOL_SOCKET, SO_PRIORITY, &optval, sizeof(optval));
+		static char message[20] = "Priority: High";
+		send(sockfd,message,sizeof(message),0);
+	}
+	else if(optval == 4){
+		setsockopt(sockfd, SOL_SOCKET, SO_PRIORITY, &optval, sizeof(optval));
+		static char message[20] = "Priority: Low";
+		send(sockfd,message,sizeof(message),0);
+	}
+
+	char receiveMessage[100] = {};
+	recv(sockfd,receiveMessage,sizeof(receiveMessage),0);
+	//printf("%s",receiveMessage);
+	//printf("close Socket\n");
+	close(sockfd);
+	return NULL;
+}
+
+void prepare_msg()
+{
 	//static char message[20] = "Requester: fanfan";
 	/*static char message[20];
 	malloc(sizeof(char) * 20);
@@ -47,25 +68,14 @@ void socket_send()
 	/* priority queue test */
 
 	int i = 0, optval; // valid values are in the range [1,7], 1- low priority, 7 - high priority
-	while(i++ < 1000){
-		if(i % 20){
+	while(i++ < 100){
+		if(i % 20)
 			optval = 7;
-			setsockopt(sockfd, SOL_SOCKET, SO_PRIORITY, &optval, sizeof(optval));
-			static char message[20] = "Priority: High";
-			send(sockfd,message,sizeof(message),0);
-		}
-		else{
+		else
 			optval = 4;
-			setsockopt(sockfd, SOL_SOCKET, SO_PRIORITY, &optval, sizeof(optval));
-			static char message[20] = "Priority: Low";
-			send(sockfd,message,sizeof(message),0);
-		}
+		socket_send(optval);
 	}
-	char receiveMessage[100] = {};
-	recv(sockfd,receiveMessage,sizeof(receiveMessage),0);
-	//printf("%s",receiveMessage);
-	//printf("close Socket\n");
-	close(sockfd);
+
 	return NULL;
 }
 
@@ -108,7 +118,7 @@ int main(int argc, char **argv)
  	 */
 	ret = 0;
 
-	socket_send();
+	prepare_msg();
 
 Done:
 	if (fd >= 0) {
