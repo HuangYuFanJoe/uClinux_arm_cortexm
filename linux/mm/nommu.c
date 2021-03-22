@@ -1089,7 +1089,7 @@ static int do_mmap_private(struct vm_area_struct *vma,
 	order = get_order(rlen);
 	kdebug("alloc order %d for %lx", order, len);
 
-	pages = alloc_pages(GFP_KERNEL, order);
+	pages = alloc_pages(GFP_KERNEL | __GFP_REPEAT, order);
 	if (!pages)
 		goto enomem;
 
